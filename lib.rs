@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std, no_main)]
 
 #[ink::contract]
 mod chaindrink {
@@ -34,6 +34,17 @@ mod chaindrink {
                 value: self.env().transferred_value(),
             });
         }
+
+        #[ink(message)]
+        pub fn withdraw(&mut self, amount: Balance) {
+            assert_eq!(self.env().caller(), self.owner, "Only the owner can withdraw");
+            
+            assert!(self.env().balance() >= amount, "Not enough balance to withdraw");
+            
+            let result = self.env().transfer(self.owner, amount);
+            assert_eq!(result, Ok(()), "Transfer failed");
+        }
+
     }
 
 }
